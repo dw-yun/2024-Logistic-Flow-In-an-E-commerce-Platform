@@ -22,7 +22,7 @@ The simulation plan models the order lifecycle: stock check → wait for restock
 - Simulation implemented in Java (`ResetCenters` and related classes); results plotted and tested in R.
 
 ## Files
-- `_IE363_Team3__20180184_20200411_final.pptx` — full presentation deck, including motivation, modeling concept, simulation plan, results, and an appendix with full Java/R source code listings (slides 27+).
+- `Logistic Flow In an E-commerce Platform.pdf` — full presentation deck, including motivation, modeling concept, simulation plan, results, and an appendix with full Java/R source code listings (slides 27+).
 
 ## Notes
 The Java and R source code currently exists only as screenshots embedded in the appendix slides (slides 33–38). If you want a clean, runnable code repo, that source would need to be retyped from the slide images.
