@@ -3,9 +3,6 @@ Hybrid modeling simulation comparing logistics center-distribution matching stra
 
 # Logistic Flow in an E-commerce Platform — Coupang Case Study
 
-**Course:** IE363 Introduction to Modeling and Simulation, KAIST
-**Team:** Hak-Beom Kim (20180184), Dowon Yun (20200411)
-
 ## Overview
 A simulation study of logistics flow within Coupang's e-commerce fulfillment and delivery network, motivated by Korea's 228-trillion-won online shopping market and persistent customer complaints about delivery reliability.
 
