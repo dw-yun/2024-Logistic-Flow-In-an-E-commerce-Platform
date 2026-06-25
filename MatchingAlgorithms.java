@@ -1,159 +1,117 @@
-// ============================================================================
-// Source: Main.ResetCenters (Action)
-//
-// Four candidate Logistics–Distribution (L-D) center matching strategies,
-// benchmarked against each other in the simulation study. In the original
-// model these all live inside a single ResetCenters() action, with only one
-// method's code uncommented (active) at a time; they are split out here into
-// separate methods for clarity. Toggle which strategy runs by calling the
-// corresponding method from Main.ResetCenters().
-//
-// NOTE: This is NOT a standalone compilable file — see the parent README.
-// ============================================================================
+//// Method 1 - Nearest-Only L-D Matching Rule ////
+// Do Nothing //
 
-public class MatchingAlgorithms {
 
-    // ------------------------------------------------------------------
-    // Method 1 — Nearest-Only L-D Matching Rule
-    //
-    // No explicit reassignment logic; centers keep their default
-    // nearest-by-route assignment (see Main.setCenters()). This block
-    // just dumps the full distance matrix (6 logistics x 25 distribution
-    // centers) via trace(), for inspection/debugging.
-    // ------------------------------------------------------------------
-    void method1_nearestOnly() {
-        // Do Nothing — relies on Main.setCenters() nearest-by-route assignment
+//// Method 2 - Stable Matching Algorithm ////
+double[][] coefficientsList = {
+    {0.147810099421742,0.13577931236657018,0.2038085013711147,0.09625341054537823,0.13813823972283276,0.14305332367018303,0.21212152924396852,0.10575688744887173,0.09778592697529528,0.14426269841582828,0.19029216503437069,0.19786134396754054,0.1471974084379954,0.05178265674270775,0.12455570577961426,0.1033543442230098,0.1742616381240966,0.1331451697192282,0.12754817258063872,0.14405667304546843,0.12655308546033164,0.10955340707878676,0.18577567297478922,0.1964063301248383,0.1320881037527308},
+    {0.07652137881335426,0.08699699670494049,0.03136535165512095,0.12482720044593067,0.12627456688600905,0.07675862497790778,0.04289689254439256,0.11409648040582819,0.1311666370679229,0.08316514392561948,0.02987566269808341,0.06148674473778971,0.08074910581522604,0.17210595663065018,0.1185516470388332,0.1177915793715741,0.10763615039479191,0.10221584175158137,0.09273366302307288,0.12136669190161745,0.09950146851428952,0.12806147545869934,0.17784011761517776,0.1012812158890795,0.08960687103943055},
+    {0.041189362572047465,0.06941526857712535,0.05603115390182992,0.09280663882314759,0.12311315310498622,0.05234464654823794,0.07241388595721464,0.08661340665300815,0.11165669699504299,0.04539526814911004,0.03246265236437282,0.02620965141259103,0.07093945677971067,0.14566754528232898,0.07746631477965386,0.09332411836203698,0.06574742900319122,0.06196775722399537,0.0631081502693898,0.12003249023721123,0.06311867928672713,0.08864648418532943,0.13634554094954715,0.06375293971488254,0.05727609639491113},
+    {0.0954386645441655,0.10356839786283785,0.04038837682662943,0.14323432466154717,0.13783377542014685,0.09473171999589086,0.045562615857627664,0.13193313143997798,0.14723107481228548,0.10212170207986736,0.04740564281654688,0.07678278783874418,0.09584621080981576,0.18930380435418326,0.13742725254104587,0.13506805552391468,0.12424890798155715,0.12113777204504919,0.11109224584695195,0.1324431733882836,0.1183985685633944,0.14701845680138073,0.19380650862573978,0.11585487421308266,0.10826848036287383},
+    {0.29550865347708843,0.29221575204859246,0.22564331124196677,0.3387060495311531,0.29812420225054465,0.2898921687061097,0.2150774806855234,0.3244619230298188,0.3292374191936035,0.30277106539700827,0.244906127452339,0.2739751490634528,0.27971439422140826,0.37513310280095435,0.33879023557229704,0.32442440176744336,0.3221933324441396,0.3223199606955181,0.30732236315807543,0.2915322519233119,0.3179944416149649,0.3476015837055555,0.3880619607775766,0.3089042954906574,0.30628918192833554},
+    {0.1759235290100041,0.16109828343642807,0.10318155480825794,0.20984874234278483,0.15749600287413637,0.16395374491374254,0.08808778919477295,0.19381333657005623,0.1926797404286205,0.1841235288402057,0.1273017543595165,0.17596196126507063,0.14706059946055786,0.2386229559625911,0.22103059320781884,0.1916372240773965,0.2210009763137959,0.20439425485587256,0.1810999326893435,0.1509306990425685,0.1958382451295989,0.2262147595089217,0.2915728139344432,0.21576968014725925,0.18233540647206814}
+};
 
-        // Code for Getting Distances //
-        trace("[");
-        for (int i = 0; i < 6; i++) {
-            trace("[");
-            for (int j = 0; j < 25; j++) {
-                double val = getDistance(
-                        distributionCenters.get(j).getX(),
-                        distributionCenters.get(j).getY(),
-                        logisticsCenters.get(i).getX(),
-                        logisticsCenters.get(i).getY()
-                );
-                trace(val + ",");
-            }
-            trace("]\n");
-        }
-        trace("]");
+int numLogisticsCenters = coefficientsList.length;
+int numDistributionCenters = coefficientsList[0].length;
+int maxCapacity = 5;
+
+int[] logisticsCapacity = new int[numLogisticsCenters];
+Arrays.fill(logisticsCapacity, maxCapacity);
+
+int[] matches = new int[numDistributionCenters];
+Arrays.fill(matches, -1);
+
+
+for (int distIdx = 0; distIdx < numDistributionCenters; distIdx++) {
+    ArrayList<int[]> distances = new ArrayList<>();
+    for (int logIdx = 0; logIdx < numLogisticsCenters; logIdx++) {
+        distances.add(new int[]{logIdx, distIdx});
     }
 
-    // ------------------------------------------------------------------
-    // Method 2(g) — Stable Matching Algorithm (Greedy)
-    //
-    // Each distribution center is greedily assigned to its
-    // cheapest-available logistics center, subject to a per-center
-    // capacity cap, using a precomputed distance/cost coefficient matrix.
-    // ------------------------------------------------------------------
-    void method2g_greedyStableMatching() {
-        double[][] coefficientsList = {
-            // 6 logistics centers x 25 distribution centers,
-            // precomputed distance/cost coefficients used for greedy assignment
-            { /* row 0: coefficients for logistics center 0 vs each of 25 distribution centers */ },
-            { /* row 1 */ },
-            { /* row 2 */ },
-            { /* row 3 */ },
-            { /* row 4 */ },
-            { /* row 5 */ },
-        };
+    distances.sort(Comparator.comparingDouble(o -> coefficientsList[o[0]][o[1]]));
 
-        int numLogisticsCenters = coefficientsList.length;
-        int numDistributionCenters = coefficientsList[0].length;
-        int maxCapacity = 5;
-
-        int[] logisticsCapacity = new int[numLogisticsCenters];
-        Arrays.fill(logisticsCapacity, maxCapacity);
-
-        int[] matches = new int[numDistributionCenters];
-        Arrays.fill(matches, -1);
-
-        for (int distIdx = 0; distIdx < numDistributionCenters; distIdx++) {
-            ArrayList<int[]> distances = new ArrayList<>();
-            for (int logIdx = 0; logIdx < numLogisticsCenters; logIdx++) {
-                distances.add(new int[]{logIdx, distIdx});
-            }
-
-            // sort candidate logistics centers by ascending coefficient (cost/distance)
-            distances.sort(Comparator.comparingDouble(o -> coefficientsList[o[0]][o[1]]));
-
-            // assign to the cheapest logistics center that still has capacity
-            for (int[] logDist : distances) {
-                int logIdx = logDist[0];
-                if (logisticsCapacity[logIdx] > 0) {
-                    matches[distIdx] = logIdx;
-                    logisticsCapacity[logIdx]--;
-                    break;
-                }
-            }
+    for (int[] logDist : distances) {
+        int logIdx = logDist[0];
+        if (logisticsCapacity[logIdx] > 0) {
+            matches[distIdx] = logIdx;
+            logisticsCapacity[logIdx]--;
+            break;
         }
-
-        for (int distIdx = 0; distIdx < matches.length; distIdx++) {
-            distributionCenters.get(distIdx).center = logisticsCenters.get(matches[distIdx]);
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Method 2(s) — Nearest with Uniformity Constraint
-    //
-    // Hand-picked, fixed groupings of distribution-center indices, each
-    // group assigned wholesale to one logistics center. Approximates a
-    // nearest-distance assignment while forcing an even (4-5 per center)
-    // distribution across all 6 logistics centers.
-    // ------------------------------------------------------------------
-    void method2s_nearestWithUniformityConstraint() {
-        int[] data1 = new int[]{4, 9, 14, 22};
-        int[] data2 = new int[]{1, 19, 21, 25};
-        int[] data3 = new int[]{10, 15, 17, 18, 23};
-        int[] data4 = new int[]{6, 11, 12, 24};
-        int[] data5 = new int[]{2, 3, 7, 8};
-        int[] data6 = new int[]{5, 13, 16, 20};
-
-        for (int i = 0; i < data1.length; i++) {
-            (distributionCenters.get(data1[i] - 1)).center = logisticsCenters.get(0);
-        }
-        for (int i = 0; i < data2.length; i++) {
-            (distributionCenters.get(data2[i] - 1)).center = logisticsCenters.get(1);
-        }
-        for (int i = 0; i < data3.length; i++) {
-            (distributionCenters.get(data3[i] - 1)).center = logisticsCenters.get(2);
-        }
-        for (int i = 0; i < data4.length; i++) {
-            (distributionCenters.get(data4[i] - 1)).center = logisticsCenters.get(3);
-        }
-        for (int i = 0; i < data5.length; i++) {
-            (distributionCenters.get(data5[i] - 1)).center = logisticsCenters.get(4);
-        }
-        for (int i = 0; i < data6.length; i++) {
-            (distributionCenters.get(data6[i] - 1)).center = logisticsCenters.get(5);
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Method 3 — Random, Uniform L-D Matching Rule
-    //
-    // Randomly assigns each of the first 24 distribution centers to one
-    // of 6 logistics centers, capped at 4 per logistics center; the 25th
-    // distribution center is assigned to a uniformly random logistics
-    // center with no capacity check.
-    // ------------------------------------------------------------------
-    void method3_randomUniform() {
-        int[] arr = new int[]{0, 0, 0, 0, 0, 0};
-        for (int i = 0; i < 24; i++) {
-            int s = 0;
-            while (s == 0) {
-                int idx = uniform_discr(0, 5);
-                if (arr[idx] < 4) {
-                    arr[idx]++;
-                    s = 1;
-                    (distributionCenters.get(i)).center = logisticsCenters.get(idx);
-                }
-            }
-        }
-        int idx = uniform_discr(0, 5);
-        (distributionCenters.get(24)).center = logisticsCenters.get(idx);
     }
 }
+
+for (int distIdx = 0; distIdx < matches.length; distIdx++) {
+    distributionCenters.get(distIdx).center = logisticsCenters.get(matches[distIdx]);
+}
+
+
+//// Method 3 - Minimize Sum using LP ////
+import pulp
+
+#coefficients_list = [[i+10*j for i in range(26)] for j in range(7)]
+coefficients_list =[[0.147810099421742,0.13577931236657018,0.2038085013711147,0.09625341054537823,0.13813823972283276,0.14305332367018303,0.21212152924396852,0.10575688744887173,0.09778592697529528,0.14426269841582828,0.19029216503437069,0.19786134396754054,0.1471974084379954,0.05178265674270775,0.12455570577961426,0.1033543442230098,0.1742616381240966,0.1331451697192282,0.12754817258063872,0.14405667304546843,0.12655308546033164,0.10955340707878676,0.18577567297478922,0.1964063301248383,0.1320881037527308],
+                    [0.07652137881335426,0.08699699670494049,0.03136535165512095,0.12482720044593067,0.12627456688600905,0.07675862497790778,0.04289689254439256,0.11409648040582819,0.1311666370679229,0.08316514392561948,0.02987566269808341,0.06148674473778971,0.08074910581522604,0.17210595663065018,0.1185516470388332,0.1177915793715741,0.10763615039479191,0.10221584175158137,0.09273366302307288,0.12136669190161745,0.09950146851428952,0.12806147545869934,0.17784011761517776,0.1012812158890795,0.08960687103943055],
+                    [0.041189362572047465,0.06941526857712535,0.05603115390182992,0.09280663882314759,0.12311315310498622,0.05234464654823794,0.07241388595721464,0.08661340665300815,0.11165669699504299,0.04539526814911004,0.03246265236437282,0.02620965141259103,0.07093945677971067,0.14566754528232898,0.07746631477965386,0.09332411836203698,0.06574742900319122,0.06196775722399537,0.0631081502693898,0.12003249023721123,0.06311867928672713,0.08864648418532943,0.13634554094954715,0.06375293971488254,0.05727609639491113],
+                    [0.0954386645441655,0.10356839786283785,0.04038837682662943,0.14323432466154717,0.13783377542014685,0.09473171999589086,0.045562615857627664,0.13193313143997798,0.14723107481228548,0.10212170207986736,0.04740564281654688,0.07678278783874418,0.09584621080981576,0.18930380435418326,0.13742725254104587,0.13506805552391468,0.12424890798155715,0.12113777204504919,0.11109224584695195,0.1324431733882836,0.1183985685633944,0.14701845680138073,0.19380650862573978,0.11585487421308266,0.10826848036287383],
+                    [0.29550865347708843,0.29221575204859246,0.22564331124196677,0.3387060495311531,0.29812420225054465,0.2898921687061097,0.2150774806855234,0.3244619230298188,0.3292374191936035,0.30277106539700827,0.244906127452339,0.2739751490634528,0.27971439422140826,0.37513310280095435,0.33879023557229704,0.32442440176744336,0.3221933324441396,0.3223199606955181,0.30732236315807543,0.2915322519233119,0.3179944416149649,0.3476015837055555,0.3880619607775766,0.3089042954906574,0.30628918192833554],
+                    [0.1759235290100041,0.16109828343642807,0.10318155480825794,0.20984874234278483,0.15749600287413637,0.16395374491374254,0.08808778919477295,0.19381333657005623,0.1926797404286205,0.1841235288402057,0.1273017543595165,0.17596196126507063,0.14706059946055786,0.2386229559625911,0.22103059320781884,0.1916372240773965,0.2210009763137959,0.20439425485587256,0.1810999326893435,0.1509306990425685,0.1958382451295989,0.2262147595089217,0.2915728139344432,0.21576968014725925,0.18233540647206814]]
+print(coefficients_list)
+
+# Define indices
+I = range(1, 7)   # i from 1 to 6
+J = range(1, 26)  # j from 1 to 25
+
+# Define a list of coefficients
+coefficients = {(i, j): coefficients_list[i-1][j-1] for i in I for j in J}
+
+# Define the problem
+problem = pulp.LpProblem("Binary_Variable_Problem", pulp.LpMinimize)
+
+# Define binary variables
+variables = {(i, j): pulp.LpVariable(f"x_{i}_{j}", cat="Binary") for i in I for j in J}
+
+# Objective function: Maximize the weighted sum of variables
+problem += pulp.lpSum(coefficients[i, j] * variables[i, j] for i in I for j in J), "Objective_Function"
+
+# Example constraint: Each row (i) (1 to 6)
+for i in I:
+    problem += pulp.lpSum(variables[i, j] for j in J) <= 5, f"Row_Sum_Constraint1_{i}"
+    problem += pulp.lpSum(variables[i, j] for j in J) >= 4, f"Row_Sum_Constraint2_{i}"
+
+# Example constraint: Each column (j) (1 to 25)
+for j in J:
+    problem += pulp.lpSum(variables[i, j] for i in I) == 1, f"Column_Sum_Constraint_{j}"
+
+# Solve the problem
+problem.solve()
+
+# Output results
+print("Status:", pulp.LpStatus[problem.status])
+print("Objective Value:", pulp.value(problem.objective))
+for (i, j), var in variables.items():
+    if var.varValue > 0:  # Print only non-zero variables
+        print(f"{var.name} = {var.varValue}")
+
+
+
+
+//// Method 4 - Random, Uniform L-D Matching Rule ////
+
+int[] arr = new int[] {0,0,0,0,0,0};
+for (int i=0;i<24;i++)
+{
+	int s=0;
+	while (s==0)
+	{
+		int idx=uniform_discr(0,5);
+		if (arr[idx]<4)
+		{
+			arr[idx]++;
+			s=1;
+			(distributionCenters.get(i)).center=logisticsCenters.get(idx);
+		}
+	}
+}
+int idx=uniform_discr(0,5);
+(distributionCenters.get(24)).center=logisticsCenters.get(idx);
